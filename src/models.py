@@ -17,3 +17,20 @@ class User(db.Model):
             "email": self.email,
             # do not serialize the password, its a security breach
         }
+
+class People(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(250),nullable=False)
+    birth_year =db.Column(db.Integer)
+    gender = db.Column(db.String(25))
+    height = db.Column(db.Integer)
+    skin_color = db.Column(db.String(25))
+
+
+class Planet(db.Model): 
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(250),nullable=False)
+    climate = db.Column(db.String(25))
+    gravity = db.Column(db.Integer)
+    population = db.Column(db.Integer)
+    terrain = db.Column(db.String(25))
