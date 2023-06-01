@@ -8,8 +8,9 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, People,Planet,favoritesPlanet,FavoritesChar
 #from models import Person
+import random
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
@@ -37,19 +38,106 @@ def sitemap():
     return generate_sitemap(app)
 
 @app.route('/user', methods=['GET'])
-def handle_hello():
+def handle_hello():       
+    users = User.query.all()
+    user_data = [i.serialize() for i in users ]  
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
-
-    return jsonify(response_body), 200
+    return jsonify(user_data), 200
 
 @app.route("/people", methods =["GET"])
 def all_people_getinator():
     people = People.query.all()
+    people_data = [i.to_dict() for i in people]
+    people_json = jsonify(people_data)
 
-    return(jsonify(people))
+    return(people_json)
+
+@app.route("/people/<int:people_id>", methods = ["GET"])
+def one_people_getinator(people_id):
+    person = People.query.get(people_id)
+    person_dic = person.to_dict()
+    return(jsonify(person_dic))
+
+@app.route ( "/planet",methods=["GET"])
+def all_planet_getinator():
+    planets = Planet.query.all()
+    planet_data = [i.to_dict() for i in planets]
+    planet_json = jsonify(planet_data)
+    return(planet_json)
+
+@app.route ("/planet/<int:planet_id>",methods=["GET"])
+def one_planet_getinator(planet_id):
+    planet = Planet.query.get(planet_id)
+    planet_data = planet.to_dict()
+    planet_json=jsonify(planet_data)
+    return planet_json
+
+@app.route("/user/favorites",methods =["GET"])
+def favorite_getinator():
+    id = 1
+    peoplefav = FavoritesChar.query.filter(FavoritesChar.user_id == id).all()
+    planetfav = favoritesPlanet.query.filter(favoritesPlanet.user_id == id).all()
+
+    peoples_id = []
+    planets_id = []
+    allfav = []
+    for i in peoplefav:
+        peoples_id.append(i.char_id)
+    for i in planetfav:
+        planets_id.append(i.planet_id)
+    
+    for i in peoples_id:
+        person = People.query.get(i)
+        person_dic = person.to_dict()
+        allfav.append(person_dic)
+    for i in planets_id:
+        planet = Planet.query.get(i)
+        planet_dic = planet.to_dict()
+        allfav.append(planet_dic)
+
+    return jsonify(allfav)
+
+@app.route ("/favorite/planet/<int:planet_id>", methods =["POST"])
+def planet_fav_addinator(planet_id):
+    planet = Planet.query.get(planet_id)
+    to_add = favoritesPlanet(planet_id = planet.id, user_id = 1)
+    db.session.add(to_add)
+    db.session.commit()
+
+    return(jsonify(to_add.to_dict()))
+
+@app.route ("/favorite/people/<int:people_id>", methods =["POST"])
+def people_fav_addinator(people_id):
+    people = People.query.get(people_id)
+    to_add = FavoritesChar(char_id = people.id, user_id = 1)
+    db.session.add(to_add)
+    db.session.commit()
+
+    return(jsonify(to_add.to_dict()))
+@app.route ("/favorite/planet/<int:planet_id>", methods =["DELETE"])
+def planet_fav_deletinator(planet_id):
+    
+    to_delete = favoritesPlanet.query.filter(favoritesPlanet.planet_id == planet_id).first()
+    db.session.delete(to_delete)
+    db.session.commit()
+
+    response_body = {
+        "msg": "exito "
+    }
+    return jsonify(response_body)
+
+@app.route ("/favorite/people/<int:people_id>", methods =["DELETE"])
+def people_fav_deletinator(people_id):
+    
+    to_delete = FavoritesChar.query.filter(FavoritesChar.char_id == people_id).first()
+    db.session.delete(to_delete)
+    db.session.commit()
+
+    response_body = {
+        "msg": "exito "
+    }
+    return jsonify(response_body)
+
 
 
 

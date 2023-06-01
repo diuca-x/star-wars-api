@@ -17,6 +17,28 @@ class User(db.Model):
             "email": self.email,
             # do not serialize the password, its a security breach
         }
+class FavoritesChar(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    char_id = db.Column(db.Integer, db.ForeignKey("people.id")) #many to one
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id")) #many to one
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'char_id': self.char_id,
+            'user_id': self.user_id,            
+        }
+
+class favoritesPlanet(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    planet_id = db.Column(db.Integer, db.ForeignKey("planet.id")) #many to one
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id")) #many to one
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'planet_id': self.planet_id,
+            'user_id': self.user_id,            
+        }
 
 class People(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -26,6 +48,16 @@ class People(db.Model):
     height = db.Column(db.Integer)
     skin_color = db.Column(db.String(25))
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'birth_year': self.birth_year,
+            'gender': self.gender,
+            'height': self.height,
+            'skin_color': self.skin_color
+        }
+
 
 class Planet(db.Model): 
     id = db.Column(db.Integer, primary_key=True)
@@ -34,3 +66,14 @@ class Planet(db.Model):
     gravity = db.Column(db.Integer)
     population = db.Column(db.Integer)
     terrain = db.Column(db.String(25))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'climate': self.climate,
+            'gravity': self.gravity,
+            'population': self.population,
+            'terrain': self.terrain
+            
+        }
